@@ -1,0 +1,36 @@
+---
+import SEO from "../components/SEO.astro";
+
+interface Props {
+  title: string;
+  description?: string;
+  url?: string;
+  image?: string;
+}
+
+const { title, description, url, image } = Astro.props as Props;
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <SEO title={title} description={description} url={url} image={image} type="website" siteName="Astro SEO + API" />
+  </head>
+  <body style="font-family: system-ui, sans-serif; background:#fafafa; color:#111; margin:0;">
+    <header style="background:#111; color:#fff; padding:1rem;">
+      <nav style="max-width:960px; margin:0 auto; display:flex; align-items:center; justify-content:space-between;">
+        <a href="/" style="color:white; font-weight:bold; font-size:1.25rem; text-decoration:none;">Astro SEO + API</a>
+        <a href="/news/psg-real-madrid" style="color:white; text-decoration:none;">Sample Article</a>
+      </nav>
+    </header>
+
+    <main style="max-width:960px; margin:2rem auto; padding:1rem;">
+      <slot />
+    </main>
+
+    <footer style="background:#f2f2f2; padding:1rem; margin-top:2rem; text-align:center; font-size:0.9rem;">
+      © {new Date().getFullYear()} Astro SEO + API Starter
+    </footer>
+  </body>
+</html>

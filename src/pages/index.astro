@@ -1,0 +1,51 @@
+---
+import Layout from "../layouts/Layout.astro";
+import type { NewsItem } from "../types/news";
+
+const apiUrl = "https://wwb99-golang-production.up.railway.app/api/news_home";
+
+// Fetch news server-side
+let news: NewsItem[] = [];
+try {
+  const res = await fetch(apiUrl, { cache: "no-store" });
+  if (res.ok) {
+    news = (await res.json()) as NewsItem[];
+  } else {
+    console.error(`API returned HTTP ${res.status}`);
+  }
+} catch (err) {
+  console.error("Fetch failed:", err);
+}
+
+// Take first news for SEO
+const firstNews = news[0] ?? {
+  title: "Astro SEO + API",
+  detail: "Latest news from your API",
+  image: "https://via.placeholder.com/600x400",
+  slug: "home",
+};
+
+const canonical = new URL("/", Astro.site).toString();
+---
+
+<Layout title={firstNews.title} description={firstNews.detail} url={canonical} image={firstNews.image}>
+  <h1>Latest News</h1>
+
+  {news.length ? (
+    <ul style="display:grid;gap:1rem;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));padding:0;list-style:none;">
+      {news.map((n: NewsItem) => (
+        <li style="border:1px solid #eee;border-radius:12px;overflow:hidden;background:white;">
+          <a href={`/news/${n.slug ?? n.id}`} style="display:block;text-decoration:none;color:inherit;">
+            <img src={n.image} alt={n.title} style="width:100%;aspect-ratio:16/9;object-fit:cover;" />
+            <div style="padding:0.75rem;">
+              <h3 style="margin:0 0 .25rem 0;font-size:1.1rem;">{n.title}</h3>
+              <p style="margin:0;font-size:0.9rem;opacity:.8;">{n.detail ?? n.description ?? ""}</p>
+            </div>
+          </a>
+        </li>
+      ))}
+    </ul>
+  ) : (
+    <p>No news available — please check the API or try again later.</p>
+  )}
+</Layout>

@@ -1,0 +1,70 @@
+---
+import SEO from '../../components/SEO.astro';
+import ShareButtons from '../../components/ShareButtons.astro';
+
+interface NewsItem {
+  id: number;
+  title: string;
+  image: string;
+  detail?: string;
+  description?: string;
+  content?: string;
+  slug?: string;
+  created_by?: string;
+  created_at?: string;
+}
+
+const { params } = Astro;
+// Assuming the slug is the news ID
+const newsId = params.slug;
+
+// Fetch single news detail
+let item: NewsItem | null = null;
+
+try {
+  const res = await fetch(`https://wwb99-golang-production.up.railway.app/api/news/getbyid?id=${newsId}`, { cache: 'no-store' });
+  if (res.ok) {
+    const json = await res.json();
+    item = json.data; // <-- extract the 'data' field from API response
+  } else {
+    console.error(`API returned HTTP ${res.status}`);
+  }
+} catch (err) {
+  console.error('Fetch failed:', err);
+}
+
+// Fallback if not found
+if (!item) {
+  throw new Error('Not found');
+}
+
+const url = new URL(`/news/${item.slug ?? item.id}`, Astro.site).toString();
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <SEO
+      title={`${item.title} | Astro SEO + API`}
+      description={item.description ?? item.detail ?? ''}
+      url={url}
+      image={item.image}
+      type="article"
+      siteName="Astro SEO + API"
+      locale="en_US"
+    />
+  </head>
+  <body>
+    <main style="max-width:760px;margin:2rem auto;padding:1rem;">
+      <article style="display:flex;flex-direction:column;gap:1rem;">
+        {item.image && (
+          <img src={item.image} alt={item.title} style="width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:12px;" />
+        )}
+        <h1>{item.title}</h1>
+        <p style="opacity:.85;">{item.description ?? item.detail ?? ''}</p>
+        <ShareButtons title={item.title} url={url} />
+      </article>
+    </main>
+  </body>
+</html>
